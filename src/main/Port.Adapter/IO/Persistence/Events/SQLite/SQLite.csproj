@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite</AssemblyName>
+    <RootNamespace>works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CqrsLite" Version="0.18.1" />
+    <PackageReference Include="Neurul.Common" Version="0.1.12" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.5.166-beta" />
+    <ProjectReference Include="..\..\..\..\..\Domain.Model\Domain.Model.csproj" />
+    <ProjectReference Include="..\..\..\..\Common\Common.csproj" />
+    <PackageReference Update="NETStandard.Library" Version="2.0.1" />
+  </ItemGroup>
+
+</Project>
