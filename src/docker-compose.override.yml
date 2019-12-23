@@ -9,7 +9,7 @@ services:
     volumes:
       - C:\db:C:\db
     ports:
-      - "5000:80"
+      - "60000:80"
   out.api:
     env_file: 
       - ./var1.env
@@ -18,7 +18,7 @@ services:
     volumes:
       - C:\db:C:\db
     ports:
-      - "59199:80"
+      - "60001:80"
 networks:
   default:
     external:

@@ -15,10 +15,10 @@
 // Modifications copyright(C) 2017 ei8/Elmer Bool
 
 using org.neurul.Common.Domain.Model;
-using org.neurul.Common.Events;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using works.ei8.EventSourcing.Common;
 using dmIEventStore = works.ei8.EventSourcing.Domain.Model.IEventStore;
 
 namespace works.ei8.EventSourcing.Application.Notifications

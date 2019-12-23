@@ -2,14 +2,12 @@
 using Nancy;
 using Nancy.Testing;
 using Newtonsoft.Json;
-using works.ei8.EventSourcing.Application.Notification;
 using org.neurul.Common;
-using org.neurul.Common.Events;
 using org.neurul.Common.Test;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using works.ei8.EventSourcing.Application.Notifications;
+using works.ei8.EventSourcing.Common;
 using Xunit;
 
 namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFixture.given
@@ -54,19 +52,19 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
     {
         public abstract class GettingCurrentLogContext : Context
         {
-            protected override string Path => "/samplebody/cortex/notifications";
+            protected override string Path => "/samplebody/eventsourcing/notifications";
 
             protected override void SetupMock(Mock<INotificationApplicationService> mock)
             {
-                mock.Setup(e => e.GetCurrentNotificationLog(It.IsAny<string>()))
-                    .Callback<string>(s => this.invoked = true)
+                mock.Setup(e => e.GetCurrentNotificationLog(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                    .Callback<string, CancellationToken>((s, ct) => this.invoked = true)
                     .Returns(Task.FromResult(this.NotificationLogResult));
             }
         }
 
         public class When_store_is_empty : GettingCurrentLogContext
         {
-            protected override NotificationLog NotificationLogResult => new NotificationLog(new NotificationLogId(0,0), null, null, null, new Notification[0], false);
+            protected override NotificationLog NotificationLogResult => new NotificationLog(new NotificationLogId(0,0), null, null, null, new Notification[0], false, 0);
             
             [Fact]
             public void Then_should_invoke_method()
@@ -117,7 +115,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                     org.neurul.Common.Constants.Response.Header.Link.Relation.Self,
                     out string link
                     );
-                Assert.Equal("http:///samplebody/cortex/notifications/0,0", link);
+                Assert.Equal("http:///samplebody/eventsourcing/notifications/0,0", link);
             }
         }
 
@@ -139,7 +137,8 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         new Notification() { Id = "9" },
                         new Notification() { Id = "10" },
                         },
-                        true
+                        true,
+                        15
                         );
 
                 protected abstract NotificationLogId PreviousId { get; }
@@ -187,7 +186,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.Self,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/6,10", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/6,10", link);
                 }
 
                 [Fact]
@@ -209,7 +208,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.First,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/1,20", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/1,20", link);
                 }
 
                 [Fact]
@@ -231,7 +230,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.Next,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/11,15", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/11,15", link);
                 }
 
                 [Fact]
@@ -253,7 +252,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.Previous,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/1,5", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/1,5", link);
                 }
             }
 
@@ -299,7 +298,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.Self,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/6,10", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/6,10", link);
                 }
 
                 [Fact]
@@ -321,7 +320,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.First,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/1,20", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/1,20", link);
                 }
 
                 [Fact]
@@ -343,7 +342,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.Next,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/11,15", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/11,15", link);
                 }
 
                 [Fact]
@@ -377,7 +376,8 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         new Notification() { Id = "9" },
                         new Notification() { Id = "10" },
                         },
-                        true
+                        true,
+                        10
                         );
 
                 protected abstract NotificationLogId PreviousId { get; }
@@ -425,7 +425,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.Self,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/6,10", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/6,10", link);
                 }
 
                 [Fact]
@@ -447,7 +447,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.First,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/1,20", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/1,20", link);
                 }
 
                 [Fact]
@@ -469,7 +469,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.Previous,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/1,5", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/1,5", link);
                 }
 
                 [Fact]
@@ -526,7 +526,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.Self,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/6,10", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/6,10", link);
                 }
 
                 [Fact]
@@ -548,7 +548,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.First,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/1,20", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/1,20", link);
                 }
 
                 [Fact]
@@ -584,19 +584,19 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
 
             protected string gettingLogId;
 
-            protected override string Path => "/samplebody/cortex/notifications/" + this.UriLogId;
+            protected override string Path => "/samplebody/eventsourcing/notifications/" + this.UriLogId;
 
             protected override void SetupMock(Mock<INotificationApplicationService> mock)
             {
-                mock.Setup(e => e.GetNotificationLog(It.IsAny<string>(), It.IsAny<string>()))
-                    .Callback<string, string>((s, e)  => { this.invoked = true; this.gettingLogId = e; })
+                mock.Setup(e => e.GetNotificationLog(It.IsAny<string>(), It.IsAny<string>(), default(CancellationToken)))
+                    .Callback<string, string, CancellationToken>((s, e, ct)  => { this.invoked = true; this.gettingLogId = e; })
                     .Returns(Task.FromResult(this.NotificationLogResult));
             }
         }
 
         public class When_store_is_empty : GettingLogContext
         {
-            protected override NotificationLog NotificationLogResult => new NotificationLog(new NotificationLogId(1,5), null, null, null, new Notification[0], false);
+            protected override NotificationLog NotificationLogResult => new NotificationLog(new NotificationLogId(1,5), null, null, null, new Notification[0], false, 0);
 
             public override string UriLogId => "1,5";
 
@@ -644,7 +644,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                     org.neurul.Common.Constants.Response.Header.Link.Relation.Self,
                     out string link
                     );
-                Assert.Equal("http:///samplebody/cortex/notifications/1,5", link);
+                Assert.Equal("http:///samplebody/eventsourcing/notifications/1,5", link);
             }
 
             [Fact]
@@ -677,7 +677,8 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         new Notification() { Id = "9" },
                         new Notification() { Id = "10" },
                         },
-                        true
+                        true,
+                        15
                         );
 
                 protected abstract NotificationLogId PreviousId { get; }
@@ -733,7 +734,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.Self,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/6,10", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/6,10", link);
                 }
 
                 [Fact]
@@ -755,7 +756,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.First,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/1,20", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/1,20", link);
                 }
 
                 [Fact]
@@ -777,7 +778,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.Next,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/11,15", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/11,15", link);
                 }
 
                 [Fact]
@@ -799,7 +800,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.Previous,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/1,5", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/1,5", link);
                 }
             }
 
@@ -853,7 +854,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.Self,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/6,10", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/6,10", link);
                 }
 
                 [Fact]
@@ -875,7 +876,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.First,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/1,20", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/1,20", link);
                 }
 
                 [Fact]
@@ -897,7 +898,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.Next,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/11,15", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/11,15", link);
                 }
 
                 [Fact]
@@ -931,7 +932,8 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         new Notification() { Id = "9" },
                         new Notification() { Id = "10" },
                         },
-                        true
+                        true,
+                        10
                         );
 
                 protected abstract NotificationLogId PreviousId { get; }
@@ -987,7 +989,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.Self,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/6,10", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/6,10", link);
                 }
 
                 [Fact]
@@ -1009,7 +1011,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.First,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/1,20", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/1,20", link);
                 }
 
                 [Fact]
@@ -1031,7 +1033,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.Previous,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/1,5", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/1,5", link);
                 }
 
                 [Fact]
@@ -1096,7 +1098,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.Self,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/6,10", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/6,10", link);
                 }
 
                 [Fact]
@@ -1118,7 +1120,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
                         org.neurul.Common.Constants.Response.Header.Link.Relation.First,
                         out string link
                         );
-                    Assert.Equal("http:///samplebody/cortex/notifications/1,20", link);
+                    Assert.Equal("http:///samplebody/eventsourcing/notifications/1,20", link);
                 }
 
                 [Fact]

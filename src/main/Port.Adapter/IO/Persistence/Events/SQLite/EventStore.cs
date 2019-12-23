@@ -1,5 +1,4 @@
 ﻿using org.neurul.Common.Domain.Model;
-using org.neurul.Common.Events;
 using works.ei8.EventSourcing.Port.Adapter.Common;
 using SQLite;
 using System;
@@ -7,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using dmIEventStore = works.ei8.EventSourcing.Domain.Model.IEventStore;
+using works.ei8.EventSourcing.Common;
 
 namespace works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
 {
@@ -14,6 +14,8 @@ namespace works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
     {
         public const int EVENTS_PER_LOG = 20;
 
+        // TODO: Use classic approach to enable connection closure
+        // https://www.codeproject.com/Tips/1057992/Using-SQLite-An-Example-of-CRUD-Operations-in-Csha
         public EventStore()
         {
         }
@@ -23,14 +25,14 @@ namespace works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             AssertionConcern.AssertArgumentNotNull(storeId, nameof(storeId));
             AssertionConcern.AssertArgumentNotEmpty(storeId, $"'{nameof(storeId)}' cannot be empty.", nameof(storeId));
 
-            var connection = await this.CreateConnection(storeId);
+            var connection = await this.GetCreateConnection(storeId);
 
             string id = aggregateId.ToString();
             // When called from CacheRepository.Get<T>, fromVersion is obtained from the AggregateRoot.Version (CQRSlite) value.
             // CacheRepository is trying to obtain only "newer" events and thus the "> fromVersion".
             var query = connection.Table<Notification>().Where(e => e.Id == id && e.Version > fromVersion);
             var results = await query.ToListAsync();
-            await this.CloseConnection(connection);
+            // TODO: await this.CloseConnection(connection);
             return results;
         }
 
@@ -39,10 +41,10 @@ namespace works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             AssertionConcern.AssertArgumentNotNull(storeId, nameof(storeId));
             AssertionConcern.AssertArgumentNotEmpty(storeId, $"'{nameof(storeId)}' cannot be empty.", nameof(storeId));
 
-            var connection = await this.CreateConnection(storeId);
+            var connection = await this.GetCreateConnection(storeId);
             var totalCount = await connection.Table<Notification>().CountAsync();
             var nli = EventStore.CalculateCurrentNotificationLogId(totalCount);
-            return await this.GetLogCore(storeId, nli.NotificationLogId, totalCount, connection);
+            return await this.GetLogCore(nli.NotificationLogId, totalCount, connection);
         }
 
         public async Task<NotificationLog> GetLog(string storeId, NotificationLogId logId, CancellationToken cancellationToken = default)
@@ -50,19 +52,19 @@ namespace works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             AssertionConcern.AssertArgumentNotNull(storeId, nameof(storeId));
             AssertionConcern.AssertArgumentNotEmpty(storeId, $"'{nameof(storeId)}' cannot be empty.", nameof(storeId));
 
-            var connection = await this.CreateConnection(storeId);
+            var connection = await this.GetCreateConnection(storeId);
             var totalCount = await connection.Table<Notification>().CountAsync();
-            return await this.GetLogCore(storeId, logId, totalCount, connection);
+            return await this.GetLogCore(logId, totalCount, connection);
         }
 
-        public async Task<NotificationLog> GetLogCore(string storeId, NotificationLogId logId, int totalCount, SQLiteAsyncConnection connection, CancellationToken cancellationToken = default)
+        private async Task<NotificationLog> GetLogCore(NotificationLogId logId, int totalCount, SQLiteAsyncConnection connection, CancellationToken cancellationToken = default)
         {
             AssertionConcern.AssertMinimumMaximumValid(logId.Low, logId.High, nameof(logId.Low), nameof(logId.High));
             AssertionConcern.AssertMinimum(logId.Low, 1, nameof(logId.Low));
 
             var query = connection.Table<Notification>().Where(e => e.SequenceId >= logId.Low && e.SequenceId <= logId.High);
             var results = await query.ToListAsync();
-            await this.CloseConnection(connection);
+            // TODO: await this.CloseConnection(connection);
 
             return await EventStore.CreateNotificationLog(logId, totalCount, results);
         }
@@ -72,33 +74,39 @@ namespace works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             AssertionConcern.AssertArgumentNotNull(storeId, nameof(storeId));
             AssertionConcern.AssertArgumentNotEmpty(storeId, $"'{nameof(storeId)}' cannot be empty.", nameof(storeId));
 
-            var connection = await this.CreateConnection(storeId);
+            var connection = await this.GetCreateConnection(storeId);
             await connection.RunInTransactionAsync(c => c.InsertAll(notifications));
-            await this.CloseConnection(connection);
+            // TODO: await this.CloseConnection(connection);
         }
 
-        private async Task<SQLiteAsyncConnection> CreateConnection(string storeId)
+        private static readonly IDictionary<string, SQLiteAsyncConnection> connections = new Dictionary<string, SQLiteAsyncConnection>();
+
+        private async Task<SQLiteAsyncConnection> GetCreateConnection(string storeId)
         {
-            SQLiteAsyncConnection result = null;
             string databasePath = string.Format(Environment.GetEnvironmentVariable(EnvironmentVariableKeys.DatabasePath), storeId);
 
             if (!databasePath.Contains(":memory:"))
                 AssertionConcern.AssertPathValid(databasePath, nameof(databasePath));
 
-            result = new SQLiteAsyncConnection(databasePath);
-            await result.CreateTableAsync<Notification>();
-            return result;
+            if (!EventStore.connections.ContainsKey(storeId))
+            {
+                var result = new SQLiteAsyncConnection(databasePath);
+                await result.CreateTableAsync<Notification>();
+                connections.Add(storeId, result);
+            }
+
+            return EventStore.connections[storeId];
         }
 
-        private async Task CloseConnection(SQLiteAsyncConnection connection)
-        {
-            await connection.CloseAsync();
-            connection = null; 
-            GC.Collect(); 
-            GC.WaitForPendingFinalizers();
-        }
+        // TODO: private async Task CloseConnection(SQLiteAsyncConnection connection)
+        //{
+        //    await connection.CloseAsync();
+        //    connection = null; 
+        //    GC.Collect(); 
+        //    GC.WaitForPendingFinalizers();
+        //}
 
-        private static async Task<NotificationLog> CreateNotificationLog(NotificationLogId notificationLogId, long notificationCount, IEnumerable<Notification> notificationList)
+        public static async Task<NotificationLog> CreateNotificationLog(NotificationLogId notificationLogId, long notificationCount, IEnumerable<Notification> notificationList)
         {
             AssertionConcern.AssertArgumentValid<long>(
                 l => (notificationLogId.High % EVENTS_PER_LOG) == 0,
@@ -116,7 +124,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             return await EventStore.CreateNotificationLog(new NotificationLogInfo(notificationLogId, notificationCount), notificationCount, notificationList);
         }
 
-        private static NotificationLogInfo CalculateCurrentNotificationLogId(long notificationCount)
+        public static NotificationLogInfo CalculateCurrentNotificationLogId(long notificationCount)
         {
             long low, high;
             if (notificationCount > 0)
@@ -135,7 +143,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             return new NotificationLogInfo(new NotificationLogId(low, high), notificationCount);
         }
 
-        private static async Task<NotificationLog> CreateNotificationLog(NotificationLogInfo notificationLogInfo, long notificationCount, IEnumerable<Notification> notificationList)
+        public static async Task<NotificationLog> CreateNotificationLog(NotificationLogInfo notificationLogInfo, long notificationCount, IEnumerable<Notification> notificationList)
         {
             NotificationLogId first = null, next = null, previous = null;
             var isArchived = false;

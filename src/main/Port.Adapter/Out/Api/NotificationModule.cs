@@ -2,10 +2,10 @@
 using Nancy.Responses;
 using Newtonsoft.Json;
 using org.neurul.Common;
-using org.neurul.Common.Events;
 using works.ei8.EventSourcing.Application.Notifications;
 using System.Linq;
 using System.Text;
+using works.ei8.EventSourcing.Common;
 
 namespace works.ei8.EventSourcing.Port.Adapter.Out.Api
 {

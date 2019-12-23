@@ -1,60 +1,87 @@
 ﻿using Moq;
-using works.ei8.EventSourcing.Application.Notifications;
-using works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events;
-using org.neurul.Common.Events;
 using org.neurul.Common.Test;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using works.ei8.EventSourcing.Application.Notifications;
+using works.ei8.EventSourcing.Common;
+using works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite;
 using Xunit;
-using CQRSlite.Events;
 
 namespace works.ei8.EventSourcing.Application.Test.Notification.NotificationApplicationServiceFixture.given
 {
     public abstract class Context : TestContext<NotificationApplicationService>
     {
-        protected Mock<IEventStore> eventStore;
-        protected List<Common.Events.Notification> events;
+        protected Mock<Domain.Model.IEventStore> eventStore;
+        protected List<EventSourcing.Common.Notification> events;
         protected NotificationLog log;
 
         protected override void Given()
         {
             base.Given();
 
-            this.eventStore = new Mock<IEventStore>();
-            // TODO: this.sut = new NotificationApplicationService(this.eventStore.Object);
+            this.eventStore = new Mock<Domain.Model.IEventStore>();
+            this.sut = new NotificationApplicationService(this.eventStore.Object);
 
-            var s = new EventSerializer();
+            this.events = this.GetEvents();
 
-            this.events = this.GetEvents(s);
+            this.eventStore
+                .Setup(e => e.GetLog(It.IsAny<string>(), It.IsAny<NotificationLogId>(), It.IsAny<CancellationToken>()))
+                .Returns<string, NotificationLogId, CancellationToken>(
+                    (s, n, ct) => EventStore.CreateNotificationLog(
+                            n,
+                            this.CountOfEventsToAdd,
+                            this.events.Where(
+                                e =>
+                                    e.SequenceId >= n.Low &&
+                                    e.SequenceId <= n.High
+                            ).ToArray()
+                        )
+                );
 
-            // TODO: this.eventStore
-            //    .Setup(e => e.CountNotifications())
-            //    .Returns(Task.FromResult((long)this.events.Count));
-
-            //this.eventStore
-            //    .Setup(e => e.GetNotificationRange(It.IsAny<long>(), It.IsAny<long>()))
-            //    .Returns<long, long>(
-            //        (l, h) => Task.FromResult(
-            //            this.events.Where(
-            //                e =>
-            //                    e.SequenceId >= l &&
-            //                    e.SequenceId <= h
-            //            ).ToArray()
-            //        )
-            //    );
+            this.eventStore
+                .Setup(e => e.GetLog(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns<string, CancellationToken>(
+                    (s, ct) => {
+                        var n = EventStore.CalculateCurrentNotificationLogId(this.CountOfEventsToAdd);
+                        if (this.CountOfEventsToAdd > 0)
+                        {                            
+                            return EventStore.CreateNotificationLog(
+                                n.NotificationLogId,
+                                this.CountOfEventsToAdd,
+                                this.events.Where(
+                                    e =>
+                                        e.SequenceId >= n.NotificationLogId.Low &&
+                                        e.SequenceId <= n.NotificationLogId.High
+                                ).ToArray()
+                            );
+                        }
+                        else
+                        {
+                            return EventStore.CreateNotificationLog(
+                                n,
+                                this.CountOfEventsToAdd,
+                                this.events.Where(
+                                    e =>
+                                        e.SequenceId >= n.NotificationLogId.Low &&
+                                        e.SequenceId <= n.NotificationLogId.High
+                                ).ToArray()
+                            );
+                        }
+                    }
+                );
         }
 
-        protected virtual List<Common.Events.Notification> GetEvents(IEventSerializer serializer)
+        protected virtual List<EventSourcing.Common.Notification> GetEvents()
         {
-            var result = new List<Common.Events.Notification>();
-            // TODO: for (int i = 0; i < this.CountOfEventsToAdd; i++)
-            //{
-            //    var ei = new NeuronCreated(Guid.NewGuid(), string.Empty, Guid.NewGuid()).ToNotification(serializer);
-            //    ei.SequenceId = i + 1;
-            //    result.Add(ei);
-            //}
+            var result = new List<EventSourcing.Common.Notification>();
+            for (int i = 0; i < this.CountOfEventsToAdd; i++)
+            {
+                var ei = new EventSourcing.Common.Notification() { SequenceId = i + 1 };
+                result.Add(ei);
+            }
             return result;
         }
 
