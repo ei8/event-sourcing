@@ -36,7 +36,6 @@ namespace works.ei8.EventSourcing.Application.Notifications
         {
             AssertionConcern.AssertArgumentNotEmpty(storeId, Constants.Messages.Exception.AvatarIdRequired, nameof(storeId));
 
-            // TODO: check if user has permission to access store        
             return await this.eventStore.GetLog(storeId, cancellationToken); 
         }
 
@@ -47,7 +46,6 @@ namespace works.ei8.EventSourcing.Application.Notifications
             if (!NotificationLogId.TryParse(notificationLogId, out NotificationLogId logId))
                 throw new FormatException($"Specified {nameof(notificationLogId)} value of '{notificationLogId}' was not in the expected format.");
 
-            // TODO: check if user has permission to access store
             return await this.eventStore.GetLog(storeId, logId, cancellationToken);
         }
     }
