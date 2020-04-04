@@ -6,6 +6,10 @@
     <RootNamespace>works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite</RootNamespace>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="CqrsLite" Version="0.18.1" />
     <PackageReference Include="ei8.EventSourcing.Common" Version="0.1.1" />

@@ -9,7 +9,6 @@ COPY main/Port.Adapter/In/Api/In.Api.csproj main/Port.Adapter/In/Api/
 COPY main/Application/Application.csproj main/Application/
 COPY main/Domain.Model/Domain.Model.csproj main/Domain.Model/
 COPY main/Port.Adapter/IO/Persistence/Events/SQLite/SQLite.csproj main/Port.Adapter/IO/Persistence/Events/SQLite/
-COPY main/Port.Adapter/IO/Persistence/Events/Events.csproj main/Port.Adapter/IO/Persistence/Events/
 RUN dotnet restore
 COPY . .
 WORKDIR /src/main/Port.Adapter/In/Api
