@@ -20,12 +20,9 @@ namespace works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
         {
         }
 
-        public async Task<IEnumerable<Notification>> Get(string storeId, Guid aggregateId, int fromVersion, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEnumerable<Notification>> Get(Guid aggregateId, int fromVersion, CancellationToken cancellationToken = default(CancellationToken))
         {
-            AssertionConcern.AssertArgumentNotNull(storeId, nameof(storeId));
-            AssertionConcern.AssertArgumentNotEmpty(storeId, $"'{nameof(storeId)}' cannot be empty.", nameof(storeId));
-
-            var connection = await this.GetCreateConnection(storeId);
+            var connection = await this.GetCreateConnection();
 
             string id = aggregateId.ToString();
             // When called from CacheRepository.Get<T>, fromVersion is obtained from the AggregateRoot.Version (CQRSlite) value.
@@ -36,23 +33,17 @@ namespace works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             return results;
         }
 
-        public async Task<NotificationLog> GetLog(string storeId, CancellationToken cancellationToken = default)
+        public async Task<NotificationLog> GetLog(CancellationToken cancellationToken = default)
         {
-            AssertionConcern.AssertArgumentNotNull(storeId, nameof(storeId));
-            AssertionConcern.AssertArgumentNotEmpty(storeId, $"'{nameof(storeId)}' cannot be empty.", nameof(storeId));
-
-            var connection = await this.GetCreateConnection(storeId);
+            var connection = await this.GetCreateConnection();
             var totalCount = await connection.Table<Notification>().CountAsync();
             var nli = EventStore.CalculateCurrentNotificationLogId(totalCount);
             return await this.GetLogCore(nli.NotificationLogId, totalCount, connection);
         }
 
-        public async Task<NotificationLog> GetLog(string storeId, NotificationLogId logId, CancellationToken cancellationToken = default)
+        public async Task<NotificationLog> GetLog(NotificationLogId logId, CancellationToken cancellationToken = default)
         {
-            AssertionConcern.AssertArgumentNotNull(storeId, nameof(storeId));
-            AssertionConcern.AssertArgumentNotEmpty(storeId, $"'{nameof(storeId)}' cannot be empty.", nameof(storeId));
-
-            var connection = await this.GetCreateConnection(storeId);
+            var connection = await this.GetCreateConnection();
             var totalCount = await connection.Table<Notification>().CountAsync();
             return await this.GetLogCore(logId, totalCount, connection);
         }
@@ -69,33 +60,30 @@ namespace works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             return await EventStore.CreateNotificationLog(logId, totalCount, results);
         }
 
-        public async Task Save(string storeId, IEnumerable<Notification> notifications, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task Save(IEnumerable<Notification> notifications, CancellationToken cancellationToken = default(CancellationToken))
         {
-            AssertionConcern.AssertArgumentNotNull(storeId, nameof(storeId));
-            AssertionConcern.AssertArgumentNotEmpty(storeId, $"'{nameof(storeId)}' cannot be empty.", nameof(storeId));
-
-            var connection = await this.GetCreateConnection(storeId);
+            var connection = await this.GetCreateConnection();
             await connection.RunInTransactionAsync(c => c.InsertAll(notifications));
             // TODO: await this.CloseConnection(connection);
         }
 
         private static readonly IDictionary<string, SQLiteAsyncConnection> connections = new Dictionary<string, SQLiteAsyncConnection>();
 
-        private async Task<SQLiteAsyncConnection> GetCreateConnection(string storeId)
+        private async Task<SQLiteAsyncConnection> GetCreateConnection()
         {
-            string databasePath = string.Format(Environment.GetEnvironmentVariable(EnvironmentVariableKeys.DatabasePath), storeId);
+            string databasePath = Environment.GetEnvironmentVariable(EnvironmentVariableKeys.DatabasePath);
 
             if (!databasePath.Contains(":memory:"))
                 AssertionConcern.AssertPathValid(databasePath, nameof(databasePath));
 
-            if (!EventStore.connections.ContainsKey(storeId))
+            if (!EventStore.connections.ContainsKey(databasePath))
             {
                 var result = new SQLiteAsyncConnection(databasePath);
                 await result.CreateTableAsync<Notification>();
-                connections.Add(storeId, result);
+                connections.Add(databasePath, result);
             }
 
-            return EventStore.connections[storeId];
+            return EventStore.connections[databasePath];
         }
 
         // TODO: private async Task CloseConnection(SQLiteAsyncConnection connection)

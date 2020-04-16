@@ -120,7 +120,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite.Test
         {
             base.Given();
 
-            Task.Run(async () => await this.sut.Save("memory", new Notification[] {
+            Task.Run(async () => await this.sut.Save(new Notification[] {
                     new Notification() { SequenceId = 1 },
                     new Notification() { SequenceId = 2 },
                     new Notification() { SequenceId = 3 },

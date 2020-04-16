@@ -1,7 +1,7 @@
 version: '3.4'
 
 services:
-  in.api:
+  event-sourcing.in.api:
     env_file:
       - ./var1.env
     environment:
@@ -10,7 +10,7 @@ services:
       - C:\db:C:\db
     ports:
       - "60000:80"
-  out.api:
+  event-sourcing.out.api:
     env_file: 
       - ./var1.env
     environment:

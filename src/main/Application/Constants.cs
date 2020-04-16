@@ -10,7 +10,6 @@ namespace works.ei8.EventSourcing.Application
         {
             public struct Exception
             {
-                public const string AvatarIdRequired = "Avatar ID cannot be empty.";
             }
         }
     }

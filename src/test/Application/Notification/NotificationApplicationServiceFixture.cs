@@ -28,7 +28,7 @@ namespace works.ei8.EventSourcing.Application.Test.Notification.NotificationAppl
             this.events = this.GetEvents();
 
             this.eventStore
-                .Setup(e => e.GetLog(It.IsAny<string>(), It.IsAny<NotificationLogId>(), It.IsAny<CancellationToken>()))
+                .Setup(e => e.GetLog(It.IsAny<NotificationLogId>(), It.IsAny<CancellationToken>()))
                 .Returns<string, NotificationLogId, CancellationToken>(
                     (s, n, ct) => EventStore.CreateNotificationLog(
                             n,
@@ -42,7 +42,7 @@ namespace works.ei8.EventSourcing.Application.Test.Notification.NotificationAppl
                 );
 
             this.eventStore
-                .Setup(e => e.GetLog(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Setup(e => e.GetLog(It.IsAny<CancellationToken>()))
                 .Returns<string, CancellationToken>(
                     (s, ct) => {
                         var n = EventStore.CalculateCurrentNotificationLogId(this.CountOfEventsToAdd);
@@ -96,7 +96,7 @@ namespace works.ei8.EventSourcing.Application.Test.Notification.NotificationAppl
             {
                 base.When();
 
-                Task.Run(async () => this.log = await this.sut.GetCurrentNotificationLog("samplebody")).Wait();
+                Task.Run(async () => this.log = await this.sut.GetCurrentNotificationLog()).Wait();
             }
         }
 
@@ -415,7 +415,7 @@ namespace works.ei8.EventSourcing.Application.Test.Notification.NotificationAppl
             {
                 base.When();
 
-                Task.Run(async () => this.log = await this.sut.GetNotificationLog("samplebody", this.NotificationLogId)).Wait();
+                Task.Run(async () => this.log = await this.sut.GetNotificationLog(this.NotificationLogId)).Wait();
             }
 
             protected abstract string NotificationLogId { get; }
@@ -432,7 +432,7 @@ namespace works.ei8.EventSourcing.Application.Test.Notification.NotificationAppl
             [Fact]
             public async Task Then_should_throw_format_exception()
             {
-                await Assert.ThrowsAsync<FormatException>(() => this.sut.GetNotificationLog("samplebody", this.NotificationLogId));
+                await Assert.ThrowsAsync<FormatException>(() => this.sut.GetNotificationLog(this.NotificationLogId));
             }
         }
 
@@ -816,7 +816,7 @@ namespace works.ei8.EventSourcing.Application.Test.Notification.NotificationAppl
                     [Fact]
                     public async Task Then_should_throw_argument_exception()
                     {
-                        await Assert.ThrowsAsync<ArgumentException>("notificationLogId", () => this.sut.GetNotificationLog("samplebody", this.NotificationLogId));
+                        await Assert.ThrowsAsync<ArgumentException>("notificationLogId", () => this.sut.GetNotificationLog(this.NotificationLogId));
                     }
                 }
 
@@ -831,7 +831,7 @@ namespace works.ei8.EventSourcing.Application.Test.Notification.NotificationAppl
                     [Fact]
                     public async Task Then_should_throw_argument_exception()
                     {
-                        await Assert.ThrowsAsync<ArgumentException>("notificationLogId", () => this.sut.GetNotificationLog("samplebody", this.NotificationLogId));
+                        await Assert.ThrowsAsync<ArgumentException>("notificationLogId", () => this.sut.GetNotificationLog(this.NotificationLogId));
                     }
                 }
 
@@ -846,7 +846,7 @@ namespace works.ei8.EventSourcing.Application.Test.Notification.NotificationAppl
                     [Fact]
                     public async Task Then_should_throw_argument_exception()
                     {
-                        await Assert.ThrowsAsync<ArgumentException>("notificationLogId", () => this.sut.GetNotificationLog("samplebody", this.NotificationLogId));
+                        await Assert.ThrowsAsync<ArgumentException>("notificationLogId", () => this.sut.GetNotificationLog(this.NotificationLogId));
                     }
                 }
 
@@ -861,7 +861,7 @@ namespace works.ei8.EventSourcing.Application.Test.Notification.NotificationAppl
                     [Fact]
                     public async Task Then_should_throw_argument_exception()
                     {
-                        await Assert.ThrowsAsync<ArgumentException>("notificationLogId", () => this.sut.GetNotificationLog("samplebody", this.NotificationLogId));
+                        await Assert.ThrowsAsync<ArgumentException>("notificationLogId", () => this.sut.GetNotificationLog(this.NotificationLogId));
                     }
                 }
 
@@ -876,7 +876,7 @@ namespace works.ei8.EventSourcing.Application.Test.Notification.NotificationAppl
                     [Fact]
                     public async Task Then_should_throw_argument_exception()
                     {
-                        await Assert.ThrowsAsync<ArgumentException>("notificationLogId", () => this.sut.GetNotificationLog("samplebody", this.NotificationLogId));
+                        await Assert.ThrowsAsync<ArgumentException>("notificationLogId", () => this.sut.GetNotificationLog(this.NotificationLogId));
                     }
                 }
 
@@ -891,7 +891,7 @@ namespace works.ei8.EventSourcing.Application.Test.Notification.NotificationAppl
                     [Fact]
                     public async Task Then_should_throw_argument_exception()
                     {
-                        await Assert.ThrowsAsync<ArgumentException>("notificationLogId", () => this.sut.GetNotificationLog("samplebody", this.NotificationLogId));
+                        await Assert.ThrowsAsync<ArgumentException>("notificationLogId", () => this.sut.GetNotificationLog(this.NotificationLogId));
                     }
                 }
             }

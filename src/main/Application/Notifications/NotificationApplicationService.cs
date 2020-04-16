@@ -32,21 +32,17 @@ namespace works.ei8.EventSourcing.Application.Notifications
 
         private readonly dmIEventStore eventStore;
         
-        public async Task<NotificationLog> GetCurrentNotificationLog(string storeId, CancellationToken cancellationToken = default)
+        public async Task<NotificationLog> GetCurrentNotificationLog(CancellationToken cancellationToken = default)
         {
-            AssertionConcern.AssertArgumentNotEmpty(storeId, Constants.Messages.Exception.AvatarIdRequired, nameof(storeId));
-
-            return await this.eventStore.GetLog(storeId, cancellationToken); 
+            return await this.eventStore.GetLog(cancellationToken); 
         }
 
-        public async Task<NotificationLog> GetNotificationLog(string storeId, string notificationLogId, CancellationToken cancellationToken = default)
+        public async Task<NotificationLog> GetNotificationLog(string notificationLogId, CancellationToken cancellationToken = default)
         {
-            AssertionConcern.AssertArgumentNotEmpty(storeId, Constants.Messages.Exception.AvatarIdRequired, nameof(storeId));
-
             if (!NotificationLogId.TryParse(notificationLogId, out NotificationLogId logId))
                 throw new FormatException($"Specified {nameof(notificationLogId)} value of '{notificationLogId}' was not in the expected format.");
 
-            return await this.eventStore.GetLog(storeId, logId, cancellationToken);
+            return await this.eventStore.GetLog(logId, cancellationToken);
         }
     }
 }

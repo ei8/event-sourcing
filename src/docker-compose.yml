@@ -1,12 +1,12 @@
 version: '3.4'
 
 services:
-  in.api:
+  event-sourcing.in.api:
     image: ei8works/eventsourcing.in.api:0.1.0
     build:
       context: .
       dockerfile: main\Port.Adapter\In\Api\Dockerfile
-  out.api:
+  event-sourcing.out.api:
     image: ei8works/eventsourcing.out.api:0.1.0
     build:
       context: .

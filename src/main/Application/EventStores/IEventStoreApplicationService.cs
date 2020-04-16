@@ -8,8 +8,8 @@ namespace works.ei8.EventSourcing.Application.EventStores
 {
     public interface IEventStoreApplicationService
     {
-        Task<IEnumerable<Notification>> Get(string storeId, Guid aggregateId, int fromVersion, CancellationToken cancellationToken = default);
+        Task<IEnumerable<Notification>> Get(Guid aggregateId, int fromVersion, CancellationToken cancellationToken = default);
 
-        Task Save(string storeId, IEnumerable<Notification> notifications, CancellationToken cancellationToken = default);
+        Task Save(IEnumerable<Notification> notifications, CancellationToken cancellationToken = default);
     }
 }

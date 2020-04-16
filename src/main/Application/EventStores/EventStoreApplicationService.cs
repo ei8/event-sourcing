@@ -17,18 +17,14 @@ namespace works.ei8.EventSourcing.Application.EventStores
 
         private readonly dmIEventStore eventStore;
 
-        public async Task<IEnumerable<Notification>> Get(string storeId, Guid aggregateId, int fromVersion, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Notification>> Get(Guid aggregateId, int fromVersion, CancellationToken cancellationToken = default)
         {
-            AssertionConcern.AssertArgumentNotEmpty(storeId, Constants.Messages.Exception.AvatarIdRequired, nameof(storeId));
-
-            return await this.eventStore.Get(storeId, aggregateId, fromVersion, cancellationToken);
+            return await this.eventStore.Get(aggregateId, fromVersion, cancellationToken);
         }
 
-        public async Task Save(string storeId, IEnumerable<Notification> notifications, CancellationToken cancellationToken = default)
+        public async Task Save(IEnumerable<Notification> notifications, CancellationToken cancellationToken = default)
         {
-            AssertionConcern.AssertArgumentNotEmpty(storeId, Constants.Messages.Exception.AvatarIdRequired, nameof(storeId));
-
-            await this.eventStore.Save(storeId, notifications, cancellationToken);
+            await this.eventStore.Save(notifications, cancellationToken);
         }
     }
 }

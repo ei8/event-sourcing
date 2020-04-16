@@ -8,8 +8,8 @@ namespace works.ei8.EventSourcing.Application.Notifications
 {
     public interface INotificationApplicationService
     {
-        Task<NotificationLog> GetCurrentNotificationLog(string storeId, CancellationToken cancellationToken = default);
+        Task<NotificationLog> GetCurrentNotificationLog(CancellationToken cancellationToken = default);
 
-        Task<NotificationLog> GetNotificationLog(string storeId, string notificationLogId, CancellationToken cancellationToken = default);
+        Task<NotificationLog> GetNotificationLog(string notificationLogId, CancellationToken cancellationToken = default);
     }
 }

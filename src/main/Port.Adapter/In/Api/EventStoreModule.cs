@@ -14,7 +14,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.In.Api
 {
     public class EventStoreModule : NancyModule
     {
-        public EventStoreModule(IEventStoreApplicationService eventStoreService) : base("/{avatarId}/eventsourcing/eventstore")
+        public EventStoreModule(IEventStoreApplicationService eventStoreService) : base("/eventsourcing/eventstore")
         {
             this.Post(string.Empty, async (parameters) =>
             {
@@ -23,7 +23,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.In.Api
                 try
                 {
                     var notifs = JsonConvert.DeserializeObject<IEnumerable<Notification>>(RequestStream.FromStream(this.Request.Body).AsString());
-                    await eventStoreService.Save(parameters.avatarId, notifs);
+                    await eventStoreService.Save(notifs);
                 }
                 catch (Exception ex)
                 {

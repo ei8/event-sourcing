@@ -11,16 +11,16 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api
 {
     public class NotificationModule : NancyModule
     {
-        public NotificationModule(INotificationApplicationService notificationService) : base("/{avatarId}/eventsourcing/notifications")
+        public NotificationModule(INotificationApplicationService notificationService) : base("/eventsourcing/notifications")
         {
             this.Get("/", async (parameters) => this.ProcessLog(
-                await notificationService.GetCurrentNotificationLog(parameters.avatarId), 
+                await notificationService.GetCurrentNotificationLog(), 
                 this.Request.Url.ToString()
                 )
                 );
 
             this.Get("/{logid}", async (parameters) => this.ProcessLog(
-                await notificationService.GetNotificationLog(parameters.avatarId, parameters.logid),
+                await notificationService.GetNotificationLog(parameters.logid),
                 this.Request.Url.ToString().Substring(
                     0, 
                     this.Request.Url.ToString().Length - parameters.logid.ToString().Length - 1

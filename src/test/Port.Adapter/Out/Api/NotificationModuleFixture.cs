@@ -56,7 +56,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
 
             protected override void SetupMock(Mock<INotificationApplicationService> mock)
             {
-                mock.Setup(e => e.GetCurrentNotificationLog(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                mock.Setup(e => e.GetCurrentNotificationLog(It.IsAny<CancellationToken>()))
                     .Callback<string, CancellationToken>((s, ct) => this.invoked = true)
                     .Returns(Task.FromResult(this.NotificationLogResult));
             }
@@ -588,7 +588,7 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api.Test.NotificationModuleFi
 
             protected override void SetupMock(Mock<INotificationApplicationService> mock)
             {
-                mock.Setup(e => e.GetNotificationLog(It.IsAny<string>(), It.IsAny<string>(), default(CancellationToken)))
+                mock.Setup(e => e.GetNotificationLog(It.IsAny<string>(), default(CancellationToken)))
                     .Callback<string, string, CancellationToken>((s, e, ct)  => { this.invoked = true; this.gettingLogId = e; })
                     .Returns(Task.FromResult(this.NotificationLogResult));
             }
