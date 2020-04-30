@@ -2,15 +2,15 @@
 using Nancy.Extensions;
 using Nancy.IO;
 using Newtonsoft.Json;
-using works.ei8.EventSourcing.Application.EventStores;
+using ei8.EventSourcing.Application.EventStores;
 using System.Collections.Generic;
 using System;
 using Nancy.Responses;
-using org.neurul.Common;
+using neurUL.Common;
 using SQLite;
-using works.ei8.EventSourcing.Common;
+using ei8.EventSourcing.Common;
 
-namespace works.ei8.EventSourcing.Port.Adapter.In.Api
+namespace ei8.EventSourcing.Port.Adapter.In.Api
 {
     public class EventStoreModule : NancyModule
     {

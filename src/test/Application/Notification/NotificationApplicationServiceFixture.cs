@@ -1,16 +1,16 @@
 ﻿using Moq;
-using org.neurul.Common.Test;
+using neurUL.Common.Test;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using works.ei8.EventSourcing.Application.Notifications;
-using works.ei8.EventSourcing.Common;
-using works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite;
+using ei8.EventSourcing.Application.Notifications;
+using ei8.EventSourcing.Common;
+using ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite;
 using Xunit;
 
-namespace works.ei8.EventSourcing.Application.Test.Notification.NotificationApplicationServiceFixture.given
+namespace ei8.EventSourcing.Application.Test.Notification.NotificationApplicationServiceFixture.given
 {
     public abstract class Context : TestContext<NotificationApplicationService>
     {

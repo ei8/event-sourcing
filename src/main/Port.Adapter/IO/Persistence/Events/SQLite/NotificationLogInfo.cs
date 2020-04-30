@@ -14,9 +14,9 @@
 // 
 // Modifications copyright(C) 2017 ei8.works/Elmer Bool
 
-using works.ei8.EventSourcing.Common;
+using ei8.EventSourcing.Common;
 
-namespace works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
+namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
 {
     public class NotificationLogInfo
     {

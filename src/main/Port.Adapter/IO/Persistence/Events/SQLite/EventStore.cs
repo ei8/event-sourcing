@@ -1,14 +1,14 @@
-﻿using org.neurul.Common.Domain.Model;
-using works.ei8.EventSourcing.Port.Adapter.Common;
+﻿using neurUL.Common.Domain.Model;
+using ei8.EventSourcing.Port.Adapter.Common;
 using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using dmIEventStore = works.ei8.EventSourcing.Domain.Model.IEventStore;
-using works.ei8.EventSourcing.Common;
+using dmIEventStore = ei8.EventSourcing.Domain.Model.IEventStore;
+using ei8.EventSourcing.Common;
 
-namespace works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
+namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
 {
     public class EventStore : dmIEventStore
     {

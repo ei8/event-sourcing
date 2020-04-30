@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace works.ei8.EventSourcing.Application
+namespace ei8.EventSourcing.Application
 {
     public struct Constants
     {

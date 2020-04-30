@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <AssemblyName>works.ei8.EventSourcing.Port.Adapter.Out.Api</AssemblyName>
-    <RootNamespace>works.ei8.EventSourcing.Port.Adapter.Out.Api</RootNamespace>
+    <AssemblyName>ei8.EventSourcing.Port.Adapter.Out.Api</AssemblyName>
+    <RootNamespace>ei8.EventSourcing.Port.Adapter.Out.Api</RootNamespace>
     <DockerComposeProjectPath>..\..\..\..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
 

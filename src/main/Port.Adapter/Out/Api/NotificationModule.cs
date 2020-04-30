@@ -1,13 +1,13 @@
 ﻿using Nancy;
 using Nancy.Responses;
 using Newtonsoft.Json;
-using org.neurul.Common;
-using works.ei8.EventSourcing.Application.Notifications;
+using neurUL.Common;
+using ei8.EventSourcing.Application.Notifications;
 using System.Linq;
 using System.Text;
-using works.ei8.EventSourcing.Common;
+using ei8.EventSourcing.Common;
 
-namespace works.ei8.EventSourcing.Port.Adapter.Out.Api
+namespace ei8.EventSourcing.Port.Adapter.Out.Api
 {
     public class NotificationModule : NancyModule
     {
@@ -36,32 +36,32 @@ namespace works.ei8.EventSourcing.Port.Adapter.Out.Api
             ResponseHelper.Header.Link.AppendValue(
                 sb,
                 $"{requestUrlBase}/{log.NotificationLogId}", 
-                org.neurul.Common.Constants.Response.Header.Link.Relation.Self
+                neurUL.Common.Constants.Response.Header.Link.Relation.Self
                 );
 
             if (log.HasFirstNotificationLog)
                 ResponseHelper.Header.Link.AppendValue(
                     sb,
                     $"{requestUrlBase}/{log.FirstNotificationLogId}",
-                    org.neurul.Common.Constants.Response.Header.Link.Relation.First
+                    neurUL.Common.Constants.Response.Header.Link.Relation.First
                     );
 
             if (log.HasPreviousNotificationLog)
                 ResponseHelper.Header.Link.AppendValue(
                     sb,
                     $"{requestUrlBase}/{log.PreviousNotificationLogId}", 
-                    org.neurul.Common.Constants.Response.Header.Link.Relation.Previous
+                    neurUL.Common.Constants.Response.Header.Link.Relation.Previous
                     );
 
             if (log.HasNextNotificationLog)
                 ResponseHelper.Header.Link.AppendValue(
                     sb,
                     $"{requestUrlBase}/{log.NextNotificationLogId}", 
-                    org.neurul.Common.Constants.Response.Header.Link.Relation.Next
+                    neurUL.Common.Constants.Response.Header.Link.Relation.Next
                     );
 
-            response.Headers.Add(org.neurul.Common.Constants.Response.Header.Link.Key, sb.ToString());
-            response.Headers.Add(org.neurul.Common.Constants.Response.Header.TotalCount.Key, log.TotalCount.ToString());
+            response.Headers.Add(neurUL.Common.Constants.Response.Header.Link.Key, sb.ToString());
+            response.Headers.Add(neurUL.Common.Constants.Response.Header.TotalCount.Key, log.TotalCount.ToString());
             return response;
         }
     }

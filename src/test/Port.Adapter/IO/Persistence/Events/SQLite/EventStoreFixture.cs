@@ -1,16 +1,16 @@
 ﻿using CQRSlite.Events;
 using Moq;
-using org.neurul.Common.Test;
+using neurUL.Common.Test;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using works.ei8.EventSourcing.Common;
-using works.ei8.EventSourcing.Port.Adapter.Common;
+using ei8.EventSourcing.Common;
+using ei8.EventSourcing.Port.Adapter.Common;
 using Xunit;
 
-namespace works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite.Test.EventStoreFixture.given
+namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite.Test.EventStoreFixture.given
 {
     public abstract class ProperlyConstructedContext : TestContext<EventStore>
     {
@@ -78,21 +78,21 @@ namespace works.ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite.Test
     //        public async Task Then_should_contain_correct_typename_prefixes()
     //        {
     //            var events = await this.sut.Get(this.guid, 0);
-    //            Assert.StartsWith("works.ei8.EventSourcing.Domain.Model", ((IAuthoredEvent) events.Last()).ToNotification(this.serializer).TypeName);
+    //            Assert.StartsWith("ei8.EventSourcing.Domain.Model", ((IAuthoredEvent) events.Last()).ToNotification(this.serializer).TypeName);
     //        }
 
     //        [Fact]
     //        public async Task Then_should_contain_correct_typename_of_first_event()
     //        {
     //            var events = await this.sut.Get(this.guid, 0);
-    //            Assert.StartsWith("works.ei8.EventSourcing.Domain.Model.Neurons.NeuronCreated", ((IAuthoredEvent) events.First()).ToNotification(this.serializer).TypeName);
+    //            Assert.StartsWith("ei8.EventSourcing.Domain.Model.Neurons.NeuronCreated", ((IAuthoredEvent) events.First()).ToNotification(this.serializer).TypeName);
     //        }
 
     //        [Fact]
     //        public async Task Then_should_contain_correct_typename_of_second_event()
     //        {
     //            var events = await this.sut.Get(this.terminalGuid, 0);
-    //            Assert.StartsWith("works.ei8.EventSourcing.Domain.Model.Neurons.TerminalCreated", ((IAuthoredEvent) events.Last()).ToNotification(this.serializer).TypeName);
+    //            Assert.StartsWith("ei8.EventSourcing.Domain.Model.Neurons.TerminalCreated", ((IAuthoredEvent) events.Last()).ToNotification(this.serializer).TypeName);
     //        }
 
     //        [Fact]

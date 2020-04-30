@@ -14,14 +14,14 @@
 // 
 // Modifications copyright(C) 2017 ei8/Elmer Bool
 
-using org.neurul.Common.Domain.Model;
+using neurUL.Common.Domain.Model;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using works.ei8.EventSourcing.Common;
-using dmIEventStore = works.ei8.EventSourcing.Domain.Model.IEventStore;
+using ei8.EventSourcing.Common;
+using dmIEventStore = ei8.EventSourcing.Domain.Model.IEventStore;
 
-namespace works.ei8.EventSourcing.Application.Notifications
+namespace ei8.EventSourcing.Application.Notifications
 {
     public class NotificationApplicationService : INotificationApplicationService
     {

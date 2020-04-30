@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using works.ei8.EventSourcing.Common;
+using ei8.EventSourcing.Common;
 
-namespace works.ei8.EventSourcing.Application.Notifications
+namespace ei8.EventSourcing.Application.Notifications
 {
     public interface INotificationApplicationService
     {

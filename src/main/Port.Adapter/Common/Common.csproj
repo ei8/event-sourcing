@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>works.ei8.EventSourcing.Port.Adapter.Common</AssemblyName>
-    <RootNamespace>works.ei8.EventSourcing.Port.Adapter.Common</RootNamespace>
+    <AssemblyName>ei8.EventSourcing.Port.Adapter.Common</AssemblyName>
+    <RootNamespace>ei8.EventSourcing.Port.Adapter.Common</RootNamespace>
   </PropertyGroup>
 
 </Project>

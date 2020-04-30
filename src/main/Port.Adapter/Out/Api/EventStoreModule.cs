@@ -1,13 +1,13 @@
 ﻿using Nancy;
 using Nancy.Responses;
 using Newtonsoft.Json;
-using works.ei8.EventSourcing.Application.EventStores;
+using ei8.EventSourcing.Application.EventStores;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace works.ei8.EventSourcing.Port.Adapter.Out.Api
+namespace ei8.EventSourcing.Port.Adapter.Out.Api
 {
     public class EventStoreModule : NancyModule
     {

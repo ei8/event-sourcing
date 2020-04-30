@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Nancy.Owin;
 
-namespace works.ei8.EventSourcing.Port.Adapter.Out.Api
+namespace ei8.EventSourcing.Port.Adapter.Out.Api
 {
     public class Startup
     {

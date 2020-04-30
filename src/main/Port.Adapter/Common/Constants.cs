@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace works.ei8.EventSourcing.Port.Adapter.Common
+namespace ei8.EventSourcing.Port.Adapter.Common
 {
     public struct EnvironmentVariableKeys
     {

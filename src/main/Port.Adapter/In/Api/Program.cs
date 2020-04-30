@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace works.ei8.EventSourcing.Port.Adapter.In.Api
+namespace ei8.EventSourcing.Port.Adapter.In.Api
 {
     public class Program
     {

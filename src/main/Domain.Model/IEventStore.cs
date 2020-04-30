@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using works.ei8.EventSourcing.Common;
+using ei8.EventSourcing.Common;
 
-namespace works.ei8.EventSourcing.Domain.Model
+namespace ei8.EventSourcing.Domain.Model
 {
     public interface IEventStore
     {
