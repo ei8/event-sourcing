@@ -7,19 +7,15 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     volumes:
-      - C:\db:C:\db
+      - /C/ei8/db:/C/db
     ports:
-      - "60000:80"
+      - 192.168.8.135:60000:80
   event-sourcing.out.api:
     env_file: 
       - ./var1.env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     volumes:
-      - C:\db:C:\db
+      - /C/ei8/db:/C/db
     ports:
-      - "60001:80"
-networks:
-  default:
-    external:
-      name: nat
+      - 192.168.8.135:60001:80
