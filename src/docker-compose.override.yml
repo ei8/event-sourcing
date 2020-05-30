@@ -9,7 +9,7 @@ services:
     volumes:
       - /C/ei8/db:/C/db
     ports:
-      - 192.168.8.135:60000:80
+      - 192.168.8.131:60000:80
   event-sourcing.out.api:
     env_file: 
       - ./var1.env
@@ -18,4 +18,4 @@ services:
     volumes:
       - /C/ei8/db:/C/db
     ports:
-      - 192.168.8.135:60001:80
+      - 192.168.8.131:60001:80
