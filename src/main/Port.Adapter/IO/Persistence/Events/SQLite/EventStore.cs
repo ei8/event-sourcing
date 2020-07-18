@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using dmIEventStore = ei8.EventSourcing.Domain.Model.IEventStore;
 using ei8.EventSourcing.Common;
+using System.Linq;
 
 namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
 {
@@ -51,7 +52,7 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
         private async Task<NotificationLog> GetLogCore(NotificationLogId logId, int totalCount, SQLiteAsyncConnection connection, CancellationToken cancellationToken = default)
         {
             AssertionConcern.AssertMinimumMaximumValid(logId.Low, logId.High, nameof(logId.Low), nameof(logId.High));
-            AssertionConcern.AssertMinimum(logId.Low, 1, nameof(logId.Low));
+            AssertionConcern.AssertMinimum(logId.Low, totalCount > 0 ? 1 : 0, nameof(logId.Low));
 
             var query = connection.Table<Notification>().Where(e => e.SequenceId >= logId.Low && e.SequenceId <= logId.High);
             var results = await query.ToListAsync();
@@ -96,14 +97,14 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
 
         public static async Task<NotificationLog> CreateNotificationLog(NotificationLogId notificationLogId, long notificationCount, IEnumerable<Notification> notificationList)
         {
-            AssertionConcern.AssertArgumentValid<long>(
-                l => (notificationLogId.High % EVENTS_PER_LOG) == 0,
+            AssertionConcern.AssertArgumentValid(
+                l => (l % EVENTS_PER_LOG) == 0,
                 notificationLogId.High,
                 $"LogId 'High' value must be divisible by '{EVENTS_PER_LOG}'",
                 nameof(notificationLogId)
                 );
-            AssertionConcern.AssertArgumentValid<long>(
-                l => (notificationLogId.Low - 1 == 0) || ((notificationLogId.Low - 1) % EVENTS_PER_LOG) == 0,
+            AssertionConcern.AssertArgumentValid(
+                l => (notificationCount == 0 && l == 0) || ((l - 1 == 0) || ((l - 1) % EVENTS_PER_LOG) == 0),
                 notificationLogId.Low,
                 $"LogId 'Low' value must be equal to 1 or, 1 plus a number divisible by '{EVENTS_PER_LOG}'",
                 nameof(notificationLogId)
