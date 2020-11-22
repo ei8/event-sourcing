@@ -1,21 +1,21 @@
 version: '3.4'
 
 services:
-  event-sourcing.in.api:
+  eventsourcing.in.api:
     env_file:
       - ./var1.env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     volumes:
       - /C/ei8/avatars/prod/sample:/C/db
-    ports:
-      - 192.168.8.131:60500:80
-  event-sourcing.out.api:
+  eventsourcing.out.api:
     env_file: 
       - ./var1.env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     volumes:
       - /C/ei8/avatars/prod/sample:/C/db
-    ports:
-      - 192.168.8.131:60501:80
+networks:
+    default:
+        external:
+            name: sample_default
