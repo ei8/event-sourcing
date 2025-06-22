@@ -1,14 +1,12 @@
 ﻿using CQRSlite.Events;
-using Moq;
+using ei8.EventSourcing.Common;
+using ei8.EventSourcing.Port.Adapter.Common;
+using ei8.EventSourcing.Port.Adapter.IO.Process.Services;
 using neurUL.Common.Test;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ei8.EventSourcing.Common;
-using ei8.EventSourcing.Port.Adapter.Common;
-using Xunit;
 
 namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite.Test.EventStoreFixture.given
 {
@@ -22,7 +20,7 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite.Test.Event
 
         protected virtual void GivenInit()
         {
-            this.sut = new EventStore();    
+            this.sut = new EventStore(new SettingsService());
         }
 
         protected virtual Action<IEvent, CancellationToken> PublishEventCallback => (e, c) => {};

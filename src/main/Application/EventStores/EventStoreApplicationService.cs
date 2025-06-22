@@ -1,9 +1,8 @@
-﻿using neurUL.Common.Domain.Model;
+﻿using ei8.EventSourcing.Common;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ei8.EventSourcing.Common;
 using dmIEventStore = ei8.EventSourcing.Domain.Model.IEventStore;
 
 namespace ei8.EventSourcing.Application.EventStores

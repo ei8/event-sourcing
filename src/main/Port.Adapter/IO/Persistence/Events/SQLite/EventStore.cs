@@ -1,24 +1,28 @@
-﻿using neurUL.Common.Domain.Model;
-using ei8.EventSourcing.Port.Adapter.Common;
+﻿using ei8.EventSourcing.Application;
+using ei8.EventSourcing.Common;
+using neurUL.Common.Domain.Model;
 using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using dmIEventStore = ei8.EventSourcing.Domain.Model.IEventStore;
-using ei8.EventSourcing.Common;
-using System.Linq;
 
 namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
 {
     public class EventStore : dmIEventStore
     {
         public const int EVENTS_PER_LOG = 20;
+        private static readonly IDictionary<string, SQLiteAsyncConnection> connections = new Dictionary<string, SQLiteAsyncConnection>();
+        private readonly ISettingsService settingsService;
 
         // TODO: Use classic approach to enable connection closure
         // https://www.codeproject.com/Tips/1057992/Using-SQLite-An-Example-of-CRUD-Operations-in-Csha
-        public EventStore()
+        public EventStore(ISettingsService settingsService)
         {
+            AssertionConcern.AssertArgumentNotNull(settingsService, nameof(settingsService));
+
+            this.settingsService = settingsService;
         }
 
         public async Task<IEnumerable<Notification>> Get(Guid aggregateId, int fromVersion, CancellationToken cancellationToken = default(CancellationToken))
@@ -68,23 +72,16 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             // TODO: await this.CloseConnection(connection);
         }
 
-        private static readonly IDictionary<string, SQLiteAsyncConnection> connections = new Dictionary<string, SQLiteAsyncConnection>();
-
         private async Task<SQLiteAsyncConnection> GetCreateConnection()
         {
-            string databasePath = Environment.GetEnvironmentVariable(EnvironmentVariableKeys.DatabasePath);
-
-            if (!databasePath.Contains(":memory:"))
-                AssertionConcern.AssertPathValid(databasePath, nameof(databasePath));
-
-            if (!EventStore.connections.ContainsKey(databasePath))
+            if (!EventStore.connections.ContainsKey(this.settingsService.DatabasePath))
             {
-                var result = new SQLiteAsyncConnection(databasePath);
+                var result = new SQLiteAsyncConnection(this.settingsService.DatabasePath);
                 await result.CreateTableAsync<Notification>();
-                connections.Add(databasePath, result);
+                connections.Add(this.settingsService.DatabasePath, result);
             }
 
-            return EventStore.connections[databasePath];
+            return EventStore.connections[this.settingsService.DatabasePath];
         }
 
         // TODO: private async Task CloseConnection(SQLiteAsyncConnection connection)

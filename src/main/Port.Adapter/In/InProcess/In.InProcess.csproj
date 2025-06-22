@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	  <AssemblyName>ei8.EventSourcing.Port.Adapter.In.InProcess</AssemblyName>
+	  <RootNamespace>ei8.EventSourcing.Port.Adapter.In.InProcess</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ei8.EventSourcing.Common" Version="0.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\Application.csproj" />
+    <ProjectReference Include="..\..\IO\Persistence\Events\SQLite\SQLite.csproj" />
+    <ProjectReference Include="..\..\IO\Process\Services\Services.csproj" />
+  </ItemGroup>
+
+</Project>

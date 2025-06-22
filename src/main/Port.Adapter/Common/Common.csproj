@@ -6,4 +6,8 @@
     <RootNamespace>ei8.EventSourcing.Port.Adapter.Common</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Application\Application.csproj" />
+  </ItemGroup>
+
 </Project>

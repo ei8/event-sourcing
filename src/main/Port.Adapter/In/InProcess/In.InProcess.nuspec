@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>ei8.EventSourcing.Port.Adapter.In.InProcess</id>
+    <version>0.0.7</version>
+    <title>ei8.EventSourcing.Port.Adapter.In.InProcess</title>
+    <authors>Elmer Roderick Niem Bool</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <licenseUrl>https://www.gnu.org/licenses/agpl-3.0.en.html</licenseUrl>
+    <description>ei8 Event Sourcing In In-Process</description>
+    <releaseNotes>Initial.</releaseNotes>
+    <tags>ei8 event sourcing in inprocess</tags>
+  </metadata>
+</package>
