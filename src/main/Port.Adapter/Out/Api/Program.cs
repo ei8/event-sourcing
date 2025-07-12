@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using neurUL.Common;
 using System;
+using System.Linq;
 using System.Net;
 using System.Text;
 using dmIEventStore = ei8.EventSourcing.Domain.Model.IEventStore;
@@ -75,7 +76,7 @@ app.MapGet(
             result,
             Microsoft.AspNetCore.Http.Extensions.UriHelper.GetEncodedUrl(context.Request)
         );
-        return result;
+        return result.NotificationList.ToArray();
     }
 );
 
@@ -96,7 +97,7 @@ app.MapGet(
                 logId
             )
         );
-        return result;
+        return result.NotificationList.ToArray();
     }
 );
 
