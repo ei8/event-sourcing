@@ -5,6 +5,7 @@ using ei8.EventSourcing.Common;
 using ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite;
 using ei8.EventSourcing.Port.Adapter.IO.Process.Services;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -13,14 +14,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using neurUL.Common;
 using System;
+using System.Linq;
 using System.Net;
 using System.Text;
 using dmIEventStore = ei8.EventSourcing.Domain.Model.IEventStore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDataProtection();
+
+var sp = builder.Services.BuildServiceProvider();
+builder.Services.AddSingleton(sp.GetRequiredService<IDataProtectionProvider>().CreateProtector(typeof(EventStore).FullName));
+
 // Add services to the container.
-builder.Services.AddScoped<ISettingsService, SettingsService>();
+builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddScoped<dmIEventStore, EventStore>();
 builder.Services.AddScoped<INotificationApplicationService, NotificationApplicationService>();
 builder.Services.AddScoped<IEventStoreApplicationService, EventStoreApplicationService>();
@@ -75,7 +82,7 @@ app.MapGet(
             result,
             Microsoft.AspNetCore.Http.Extensions.UriHelper.GetEncodedUrl(context.Request)
         );
-        return result;
+        return result.NotificationList.ToArray();
     }
 );
 
@@ -96,7 +103,7 @@ app.MapGet(
                 logId
             )
         );
-        return result;
+        return result.NotificationList.ToArray();
     }
 );
 
@@ -123,7 +130,6 @@ static string RemoveLogId(string url, string logId)
 
 static void ProcessLog(HttpResponse response, NotificationLog log, string requestUrlBase)
 {
-    // DEL: var response = new TextResponse(JsonConvert.SerializeObject(log.NotificationList.ToArray()));
     var sb = new StringBuilder();
     ResponseHelper.Header.Link.AppendValue(
         sb,
@@ -154,5 +160,4 @@ static void ProcessLog(HttpResponse response, NotificationLog log, string reques
 
     response.Headers.Add(neurUL.Common.Constants.Response.Header.Link.Key, sb.ToString());
     response.Headers.Add(neurUL.Common.Constants.Response.Header.TotalCount.Key, log.TotalCount.ToString());
-    // DEL: return response;
 }

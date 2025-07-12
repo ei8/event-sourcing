@@ -1,9 +1,11 @@
 ﻿using ei8.EventSourcing.Application;
 using ei8.EventSourcing.Application.EventStores;
+using ei8.EventSourcing.Application.Keys;
 using ei8.EventSourcing.Common;
 using ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite;
 using ei8.EventSourcing.Port.Adapter.IO.Process.Services;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,13 +17,18 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using dmIEventStore = ei8.EventSourcing.Domain.Model.IEventStore;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDataProtection();
+
+var sp = builder.Services.BuildServiceProvider();
+builder.Services.AddSingleton(sp.GetRequiredService<IDataProtectionProvider>().CreateProtector(typeof(EventStore).FullName));
 
 // Add services to the container.
-builder.Services.AddScoped<ISettingsService, SettingsService>();
+builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddScoped<dmIEventStore, EventStore>();
 builder.Services.AddScoped<IEventStoreApplicationService, EventStoreApplicationService>();
 
@@ -67,6 +74,25 @@ app.MapPost("/eventsourcing/eventstore", async (
             hsc = HttpStatusCode.Conflict;
 
         result = Results.Problem(ex.ToDetailedString(), statusCode: (int) hsc);
+    }
+    return result;
+});
+
+app.MapPost("/eventsourcing/key", async (
+    [FromServices] IKeyApplicationService keyApplicationService,
+    HttpContext context
+) =>
+{
+    var result = Results.Ok();
+    try
+    {
+        var data = await new StreamReader(context.Request.Body).ReadToEndAsync();
+        var keys = JsonSerializer.Deserialize<IEnumerable<string>>(data);
+        await keyApplicationService.Load(keys);
+    }
+    catch (Exception ex)
+    {
+        result = Results.Problem(ex.ToDetailedString(), statusCode: (int) HttpStatusCode.InternalServerError);
     }
     return result;
 });

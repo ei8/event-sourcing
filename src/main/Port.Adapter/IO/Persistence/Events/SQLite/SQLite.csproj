@@ -13,6 +13,7 @@
   <ItemGroup>
     <PackageReference Include="CqrsLite" Version="0.18.1" />
     <PackageReference Include="ei8.EventSourcing.Common" Version="0.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions" Version="2.0.0" />
     <PackageReference Include="Neurul.Common" Version="0.1.19" />
     <PackageReference Include="sqlite-net-pcl" Version="1.7.335" />
     <ProjectReference Include="..\..\..\..\..\Application\Application.csproj" />

@@ -1,10 +1,12 @@
 ﻿using ei8.EventSourcing.Application;
+using neurUL.Common.Domain.Model;
 
 namespace ei8.EventSourcing.Port.Adapter.IO.Process.Services
 {
     public class InProcessSettingsService : ISettingsService
     {
         private string databasePath;
+        private string privateKeyPath;
 
         public InProcessSettingsService()
         {
@@ -23,6 +25,28 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Process.Services
                 {
                     Helper.ValidateDatabasePath(value);
                     this.databasePath = value;
+                }
+            }
+        }
+
+        public byte[] EventsKey { get; set; }
+
+        public bool IsKeyProtected { get; set; }
+
+        public string PrivateKeyPath 
+        { 
+            get => privateKeyPath;
+            set
+            {
+                if (this.privateKeyPath != value)
+                {
+                    AssertionConcern.AssertArgumentNotEmpty(
+                        value,
+                        "Path specified cannot be null or empty.",
+                        nameof(value)
+                    );
+                    AssertionConcern.AssertPathValid(value, nameof(value));
+                    this.privateKeyPath = value;
                 }
             }
         }

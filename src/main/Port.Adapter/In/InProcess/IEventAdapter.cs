@@ -7,6 +7,8 @@ namespace ei8.EventSourcing.Port.Adapter.In.InProcess
 {
     public interface IEventAdapter
     {
+        // TODO:0 keys
+
         Task Save(IEnumerable<Notification> notifications, CancellationToken cancellationToken = default);
     }
 }

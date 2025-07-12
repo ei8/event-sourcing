@@ -1,5 +1,6 @@
 ﻿using ei8.EventSourcing.Application;
 using ei8.EventSourcing.Common;
+using Microsoft.AspNetCore.DataProtection;
 using neurUL.Common.Domain.Model;
 using SQLite;
 using System;
@@ -14,14 +15,17 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
     {
         public const int EVENTS_PER_LOG = 20;
         private static readonly IDictionary<string, SQLiteAsyncConnection> connections = new Dictionary<string, SQLiteAsyncConnection>();
+        private readonly IDataProtector dataProtector;
         private readonly ISettingsService settingsService;
 
         // TODO: Use classic approach to enable connection closure
         // https://www.codeproject.com/Tips/1057992/Using-SQLite-An-Example-of-CRUD-Operations-in-Csha
-        public EventStore(ISettingsService settingsService)
+        public EventStore(IDataProtector dataProtector, ISettingsService settingsService)
         {
+            AssertionConcern.AssertArgumentNotNull(dataProtector, nameof(dataProtector));
             AssertionConcern.AssertArgumentNotNull(settingsService, nameof(settingsService));
 
+            this.dataProtector = dataProtector;
             this.settingsService = settingsService;
         }
 
@@ -35,6 +39,17 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             var query = connection.Table<Notification>().Where(e => e.Id == id && e.Version > fromVersion);
             var results = await query.ToListAsync();
             // TODO: await this.CloseConnection(connection);
+
+            EventStore.GetSettingsKeyPropertyPair().ProtectedInvoke(
+                () => {
+                    foreach (var r in results)
+                        foreach (var np in EventStore.GetNotificationProperties())
+                            np.Decrypt(r, this.settingsService.EventsKey);
+                },
+                this.dataProtector,
+                this.settingsService
+            );
+
             return results;
         }
 
@@ -62,14 +77,63 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             var results = await query.ToListAsync();
             // TODO: await this.CloseConnection(connection);
 
+            EventStore.GetSettingsKeyPropertyPair().ProtectedInvoke(
+                () => {
+                    foreach (var r in results)
+                        foreach (var np in EventStore.GetNotificationProperties())
+                            np.Decrypt(r, this.settingsService.EventsKey);
+                },
+                this.dataProtector,
+                this.settingsService
+            );
+
             return await EventStore.CreateNotificationLog(logId, totalCount, results);
         }
 
         public async Task Save(IEnumerable<Notification> notifications, CancellationToken cancellationToken = default(CancellationToken))
         {
             var connection = await this.GetCreateConnection();
+
+            if (this.settingsService.EventsKey != null && this.settingsService.EventsKey.Length > 0)
+            {
+                EventStore.GetSettingsKeyPropertyPair().ProtectedInvoke(
+                    () => {
+                        foreach (var n in notifications)
+                            foreach (var np in EventStore.GetNotificationProperties())
+                                np.Encrypt(n, this.settingsService.EventsKey);
+                    },
+                    this.dataProtector,
+                    this.settingsService
+                );
+            }
+
             await connection.RunInTransactionAsync(c => c.InsertAll(notifications));
             // TODO: await this.CloseConnection(connection);
+        }
+
+        private static ProtectedDataPropertyPair<ISettingsService, byte[]> settingsKeyProperty = null;
+        internal static ProtectedDataPropertyPair<ISettingsService, byte[]> GetSettingsKeyPropertyPair()
+        {
+            if (EventStore.settingsKeyProperty == null)
+                EventStore.settingsKeyProperty = new ProtectedDataPropertyPair<ISettingsService, byte[]>(
+                    s => s.EventsKey,
+                    s => s.IsKeyProtected
+                );
+
+            return EventStore.settingsKeyProperty;
+        }
+
+        private static IEnumerable<PropertyExpression<Notification, string>> notificationProperties = null;
+        private static IEnumerable<PropertyExpression<Notification, string>> GetNotificationProperties()
+        {
+            if (EventStore.notificationProperties == null)
+                EventStore.notificationProperties = new PropertyExpression<Notification, string>[] {
+                    new PropertyExpression<Notification, string>(n => n.Timestamp),
+                    new PropertyExpression<Notification, string>(n => n.TypeName),
+                    new PropertyExpression<Notification, string>(n => n.AuthorId),
+                    new PropertyExpression<Notification, string>(n => n.Data)
+                };
+            return EventStore.notificationProperties;
         }
 
         private async Task<SQLiteAsyncConnection> GetCreateConnection()

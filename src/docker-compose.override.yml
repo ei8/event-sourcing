@@ -8,6 +8,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
     volumes:
       - /C/ei8/avatars/prod/sample:/C/db
+      - /E/ei8/keys/sample:/C/keys
+      
   eventsourcing.out.api:
     env_file: 
       - ./var1.env
@@ -15,7 +17,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
     volumes:
       - /C/ei8/avatars/prod/sample:/C/db
+      - /E/ei8/keys/sample:/C/keys
 networks:
     default:
         external:
-            name: sample_default
+            name: sample2_default
