@@ -33,6 +33,8 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Process.Services
 
         public bool IsKeyProtected { get; set; }
 
+        public bool EncryptionEnabled { get; set; }
+
         public string PrivateKeyPath 
         { 
             get => privateKeyPath;

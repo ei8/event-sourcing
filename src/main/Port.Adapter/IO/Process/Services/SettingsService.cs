@@ -17,6 +17,10 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Process.Services
                 Environment.GetEnvironmentVariable(EnvironmentVariableKeys.DatabasePath)
             );
             this.IsKeyProtected = false;
+            this.EncryptionEnabled = bool.TryParse(
+                Environment.GetEnvironmentVariable(EnvironmentVariableKeys.EncryptionEnabled), 
+                out bool bee
+            ) ? bee : false;
             this.PrivateKeyPath = Environment.GetEnvironmentVariable(EnvironmentVariableKeys.PrivateKeyPath);
         }
 
@@ -25,6 +29,8 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Process.Services
         public string DatabasePath { get; set; }
 
         public bool IsKeyProtected { get; set; }
+
+        public bool EncryptionEnabled { get; set; }
 
         public string PrivateKeyPath
         {

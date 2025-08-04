@@ -2,6 +2,8 @@
 using ei8.EventSourcing.Application.EventStores;
 using ei8.EventSourcing.Application.Keys;
 using ei8.EventSourcing.Common;
+using ei8.EventSourcing.Domain.Model;
+using ei8.EventSourcing.Port.Adapter.Common.Api;
 using ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite;
 using ei8.EventSourcing.Port.Adapter.IO.Process.Services;
 using Microsoft.AspNetCore.Builder;
@@ -17,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using dmIEventStore = ei8.EventSourcing.Domain.Model.IEventStore;
 
@@ -31,6 +32,8 @@ builder.Services.AddSingleton(sp.GetRequiredService<IDataProtectionProvider>().C
 builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddScoped<dmIEventStore, EventStore>();
 builder.Services.AddScoped<IEventStoreApplicationService, EventStoreApplicationService>();
+builder.Services.AddSingleton<IKeyService, KeyService>();
+builder.Services.AddScoped<IKeyApplicationService, KeyApplicationService>();
 
 builder.Services.AddHttpClient();
 
@@ -78,24 +81,7 @@ app.MapPost("/eventsourcing/eventstore", async (
     return result;
 });
 
-app.MapPost("/eventsourcing/key", async (
-    [FromServices] IKeyApplicationService keyApplicationService,
-    HttpContext context
-) =>
-{
-    var result = Results.Ok();
-    try
-    {
-        var data = await new StreamReader(context.Request.Body).ReadToEndAsync();
-        var keys = JsonSerializer.Deserialize<IEnumerable<string>>(data);
-        await keyApplicationService.Load(keys);
-    }
-    catch (Exception ex)
-    {
-        result = Results.Problem(ex.ToDetailedString(), statusCode: (int) HttpStatusCode.InternalServerError);
-    }
-    return result;
-});
+app.AddKeyHandler();
 
 // Add global exception handling
 app.UseExceptionHandler(appError =>

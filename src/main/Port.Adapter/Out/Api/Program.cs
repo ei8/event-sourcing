@@ -1,7 +1,10 @@
 ﻿using ei8.EventSourcing.Application;
 using ei8.EventSourcing.Application.EventStores;
+using ei8.EventSourcing.Application.Keys;
 using ei8.EventSourcing.Application.Notifications;
 using ei8.EventSourcing.Common;
+using ei8.EventSourcing.Domain.Model;
+using ei8.EventSourcing.Port.Adapter.Common.Api;
 using ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite;
 using ei8.EventSourcing.Port.Adapter.IO.Process.Services;
 using Microsoft.AspNetCore.Builder;
@@ -31,6 +34,8 @@ builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddScoped<dmIEventStore, EventStore>();
 builder.Services.AddScoped<INotificationApplicationService, NotificationApplicationService>();
 builder.Services.AddScoped<IEventStoreApplicationService, EventStoreApplicationService>();
+builder.Services.AddSingleton<IKeyService, KeyService>();
+builder.Services.AddScoped<IKeyApplicationService, KeyApplicationService>();
 
 builder.Services.AddHttpClient();
 
@@ -106,6 +111,8 @@ app.MapGet(
         return result.NotificationList.ToArray();
     }
 );
+
+app.AddKeyHandler();
 
 // Add global exception handling
 app.UseExceptionHandler(appError =>

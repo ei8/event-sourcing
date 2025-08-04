@@ -39,6 +39,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Process", "Process", "{02EA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "main\Port.Adapter\IO\Process\Services\Services.csproj", "{EB2BD9C6-3D70-4E04-B437-BF90E66ED358}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Api", "main\Port.Adapter\Common\Api\Common.Api.csproj", "{E3D92148-42F5-4C4C-A693-042264275BBA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,10 @@ Global
 		{EB2BD9C6-3D70-4E04-B437-BF90E66ED358}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB2BD9C6-3D70-4E04-B437-BF90E66ED358}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB2BD9C6-3D70-4E04-B437-BF90E66ED358}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3D92148-42F5-4C4C-A693-042264275BBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3D92148-42F5-4C4C-A693-042264275BBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3D92148-42F5-4C4C-A693-042264275BBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3D92148-42F5-4C4C-A693-042264275BBA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -104,6 +110,7 @@ Global
 		{BAB39F57-AD3B-4ED4-8E0E-F96BAA0184B9} = {A30F7F77-9251-456D-90EE-AFFEECB77852}
 		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {4F77633D-80FC-4EA4-8DFB-128C1564996E}
 		{EB2BD9C6-3D70-4E04-B437-BF90E66ED358} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{E3D92148-42F5-4C4C-A693-042264275BBA} = {DBB322C0-BC6A-4962-98DC-8DBB176F9C0C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {52C9D9EC-9427-4D12-AC67-B848B8A8C45A}

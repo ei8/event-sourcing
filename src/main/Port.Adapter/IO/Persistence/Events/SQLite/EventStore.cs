@@ -40,15 +40,16 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             var results = await query.ToListAsync();
             // TODO: await this.CloseConnection(connection);
 
-            EventStore.GetSettingsKeyPropertyPair().ProtectedInvoke(
-                () => {
-                    foreach (var r in results)
-                        foreach (var np in EventStore.GetNotificationProperties())
-                            np.Decrypt(r, this.settingsService.EventsKey);
-                },
-                this.dataProtector,
-                this.settingsService
-            );
+            if (this.settingsService.ValidateEncryptionEnabled())
+                EventStore.GetSettingsKeyPropertyPair().ProtectedInvoke(
+                    () => {
+                        foreach (var r in results)
+                            foreach (var np in EventStore.GetNotificationProperties())
+                                np.Decrypt(r, this.settingsService.EventsKey);
+                    },
+                    this.dataProtector,
+                    this.settingsService
+                );
 
             return results;
         }
@@ -77,15 +78,16 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             var results = await query.ToListAsync();
             // TODO: await this.CloseConnection(connection);
 
-            EventStore.GetSettingsKeyPropertyPair().ProtectedInvoke(
-                () => {
-                    foreach (var r in results)
-                        foreach (var np in EventStore.GetNotificationProperties())
-                            np.Decrypt(r, this.settingsService.EventsKey);
-                },
-                this.dataProtector,
-                this.settingsService
-            );
+            if (this.settingsService.ValidateEncryptionEnabled())
+                EventStore.GetSettingsKeyPropertyPair().ProtectedInvoke(
+                    () => {
+                        foreach (var r in results)
+                            foreach (var np in EventStore.GetNotificationProperties())
+                                np.Decrypt(r, this.settingsService.EventsKey);
+                    },
+                    this.dataProtector,
+                    this.settingsService
+                );
 
             return await EventStore.CreateNotificationLog(logId, totalCount, results);
         }
@@ -94,8 +96,7 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
         {
             var connection = await this.GetCreateConnection();
 
-            if (this.settingsService.EventsKey != null && this.settingsService.EventsKey.Length > 0)
-            {
+            if (this.settingsService.ValidateEncryptionEnabled())
                 EventStore.GetSettingsKeyPropertyPair().ProtectedInvoke(
                     () => {
                         foreach (var n in notifications)
@@ -105,7 +106,6 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
                     this.dataProtector,
                     this.settingsService
                 );
-            }
 
             await connection.RunInTransactionAsync(c => c.InsertAll(notifications));
             // TODO: await this.CloseConnection(connection);
