@@ -18,7 +18,7 @@ using ei8.EventSourcing.Common;
 
 namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
 {
-    public class NotificationLogInfo
+    internal class NotificationLogInfo
     {
         public NotificationLogInfo(NotificationLogId notificationLogId, long totalLogged)
         {

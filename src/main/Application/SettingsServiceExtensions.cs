@@ -1,4 +1,5 @@
 ﻿using neurUL.Common.Domain.Model;
+using neurUL.Common.Security.Cryptography;
 
 namespace ei8.EventSourcing.Application
 {
@@ -18,6 +19,18 @@ namespace ei8.EventSourcing.Application
             }
 
             return result;
+        }
+
+        private static ProtectedDataPropertyPair<ISettingsService, byte[]> settingsKeyProperty = null;
+        public static ProtectedDataPropertyPair<ISettingsService, byte[]> GetKeyPropertyPair(this ISettingsService settingsService)
+        {
+            if (SettingsServiceExtensions.settingsKeyProperty == null)
+                SettingsServiceExtensions.settingsKeyProperty = new ProtectedDataPropertyPair<ISettingsService, byte[]>(
+                    s => s.EventsKey,
+                    s => s.IsKeyProtected
+                );
+
+            return SettingsServiceExtensions.settingsKeyProperty;
         }
     }
 }

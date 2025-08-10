@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
+using neurUL.Common.Security.Cryptography;
 using System;
 
 namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
 {
-    // TODO:0 transfer to an appropriate namespace
-    public static class ProtectedDataPropertyPairExtensions
+    internal static class ProtectedDataPropertyPairExtensions
     {
-        public static void ProtectedInvoke<T>(
+        internal static void ProtectedInvoke<T>(
             this ProtectedDataPropertyPair<T, byte[]> dataPropertyPair,
             Action action,
             IDataProtector dataProtector,
@@ -28,7 +28,7 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             );
         }
 
-        public static void Protect<T>(
+        internal static void Protect<T>(
             this ProtectedDataPropertyPair<T, byte[]> dataPropertyPair,
             IDataProtector dataProtector,
             T instance,

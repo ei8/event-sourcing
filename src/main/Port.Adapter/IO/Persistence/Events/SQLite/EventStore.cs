@@ -2,6 +2,8 @@
 using ei8.EventSourcing.Common;
 using Microsoft.AspNetCore.DataProtection;
 using neurUL.Common.Domain.Model;
+using neurUL.Common.Linq.Expressions;
+using neurUL.Common.Security.Cryptography;
 using SQLite;
 using System;
 using System.Collections.Generic;
@@ -41,7 +43,7 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             // TODO: await this.CloseConnection(connection);
 
             if (this.settingsService.ValidateEncryptionEnabled())
-                EventStore.GetSettingsKeyPropertyPair().ProtectedInvoke(
+                this.settingsService.GetKeyPropertyPair().ProtectedInvoke(
                     () => {
                         foreach (var r in results)
                             foreach (var np in EventStore.GetNotificationProperties())
@@ -79,7 +81,7 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             // TODO: await this.CloseConnection(connection);
 
             if (this.settingsService.ValidateEncryptionEnabled())
-                EventStore.GetSettingsKeyPropertyPair().ProtectedInvoke(
+                this.settingsService.GetKeyPropertyPair().ProtectedInvoke(
                     () => {
                         foreach (var r in results)
                             foreach (var np in EventStore.GetNotificationProperties())
@@ -97,7 +99,7 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             var connection = await this.GetCreateConnection();
 
             if (this.settingsService.ValidateEncryptionEnabled())
-                EventStore.GetSettingsKeyPropertyPair().ProtectedInvoke(
+                this.settingsService.GetKeyPropertyPair().ProtectedInvoke(
                     () => {
                         foreach (var n in notifications)
                             foreach (var np in EventStore.GetNotificationProperties())
@@ -109,18 +111,6 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
 
             await connection.RunInTransactionAsync(c => c.InsertAll(notifications));
             // TODO: await this.CloseConnection(connection);
-        }
-
-        private static ProtectedDataPropertyPair<ISettingsService, byte[]> settingsKeyProperty = null;
-        internal static ProtectedDataPropertyPair<ISettingsService, byte[]> GetSettingsKeyPropertyPair()
-        {
-            if (EventStore.settingsKeyProperty == null)
-                EventStore.settingsKeyProperty = new ProtectedDataPropertyPair<ISettingsService, byte[]>(
-                    s => s.EventsKey,
-                    s => s.IsKeyProtected
-                );
-
-            return EventStore.settingsKeyProperty;
         }
 
         private static IEnumerable<PropertyExpression<Notification, string>> notificationProperties = null;
@@ -156,7 +146,7 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
         //    GC.WaitForPendingFinalizers();
         //}
 
-        public static async Task<NotificationLog> CreateNotificationLog(NotificationLogId notificationLogId, long notificationCount, IEnumerable<Notification> notificationList)
+        internal static async Task<NotificationLog> CreateNotificationLog(NotificationLogId notificationLogId, long notificationCount, IEnumerable<Notification> notificationList)
         {
             AssertionConcern.AssertArgumentValid(
                 l => (l % EVENTS_PER_LOG) == 0,
@@ -174,7 +164,7 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             return await EventStore.CreateNotificationLog(new NotificationLogInfo(notificationLogId, notificationCount), notificationCount, notificationList);
         }
 
-        public static NotificationLogInfo CalculateCurrentNotificationLogId(long notificationCount)
+        internal static NotificationLogInfo CalculateCurrentNotificationLogId(long notificationCount)
         {
             long low, high;
             if (notificationCount > 0)
@@ -193,7 +183,7 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             return new NotificationLogInfo(new NotificationLogId(low, high), notificationCount);
         }
 
-        public static async Task<NotificationLog> CreateNotificationLog(NotificationLogInfo notificationLogInfo, long notificationCount, IEnumerable<Notification> notificationList)
+        internal static async Task<NotificationLog> CreateNotificationLog(NotificationLogInfo notificationLogInfo, long notificationCount, IEnumerable<Notification> notificationList)
         {
             NotificationLogId first = null, next = null, previous = null;
             var isArchived = false;
