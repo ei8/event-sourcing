@@ -7,6 +7,7 @@ using neurUL.Common.Security.Cryptography;
 using SQLite;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using dmIEventStore = ei8.EventSourcing.Domain.Model.IEventStore;
@@ -97,11 +98,12 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
         public async Task Save(IEnumerable<Notification> notifications, CancellationToken cancellationToken = default(CancellationToken))
         {
             var connection = await this.GetCreateConnection();
+            var notificationsList = notifications.ToList();
 
             if (this.settingsService.ValidateEncryptionEnabled())
                 this.settingsService.GetKeyPropertyPair().ProtectedInvoke(
                     () => {
-                        foreach (var n in notifications)
+                        foreach (var n in notificationsList)
                             foreach (var np in EventStore.GetNotificationProperties())
                                 np.Encrypt(n, this.settingsService.EventsKey);
                     },
@@ -109,7 +111,7 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
                     this.settingsService
                 );
 
-            await connection.RunInTransactionAsync(c => c.InsertAll(notifications));
+            await connection.RunInTransactionAsync(c => c.InsertAll(notificationsList));
             // TODO: await this.CloseConnection(connection);
         }
 

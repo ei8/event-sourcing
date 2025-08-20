@@ -1,6 +1,5 @@
 ﻿using ei8.EventSourcing.Application;
 using ei8.EventSourcing.Port.Adapter.Common;
-using Microsoft.AspNetCore.DataProtection;
 using neurUL.Common.Domain.Model;
 using System;
 
@@ -10,7 +9,7 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Process.Services
     {
         private string privateKeyPath;
 
-        public SettingsService(IDataProtector dataProtector)
+        public SettingsService()
         {
             this.EventsKey = null;
             this.DatabasePath = Helper.ValidateDatabasePath(

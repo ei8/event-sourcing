@@ -7,13 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions" Version="9.0.6" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\..\..\Application\Application.csproj" />
     <ProjectReference Include="..\..\..\Common\Common.csproj" />
-    <ProjectReference Include="..\..\Persistence\Events\SQLite\SQLite.csproj" />
   </ItemGroup>
 
 </Project>
