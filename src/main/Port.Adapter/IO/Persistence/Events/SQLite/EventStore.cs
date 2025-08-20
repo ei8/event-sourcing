@@ -1,9 +1,13 @@
 ﻿using ei8.EventSourcing.Application;
 using ei8.EventSourcing.Common;
+using Microsoft.AspNetCore.DataProtection;
 using neurUL.Common.Domain.Model;
+using neurUL.Common.Linq.Expressions;
+using neurUL.Common.Security.Cryptography;
 using SQLite;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using dmIEventStore = ei8.EventSourcing.Domain.Model.IEventStore;
@@ -14,14 +18,17 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
     {
         public const int EVENTS_PER_LOG = 20;
         private static readonly IDictionary<string, SQLiteAsyncConnection> connections = new Dictionary<string, SQLiteAsyncConnection>();
+        private readonly IDataProtector dataProtector;
         private readonly ISettingsService settingsService;
 
         // TODO: Use classic approach to enable connection closure
         // https://www.codeproject.com/Tips/1057992/Using-SQLite-An-Example-of-CRUD-Operations-in-Csha
-        public EventStore(ISettingsService settingsService)
+        public EventStore(IDataProtector dataProtector, ISettingsService settingsService)
         {
+            AssertionConcern.AssertArgumentNotNull(dataProtector, nameof(dataProtector));
             AssertionConcern.AssertArgumentNotNull(settingsService, nameof(settingsService));
 
+            this.dataProtector = dataProtector;
             this.settingsService = settingsService;
         }
 
@@ -35,6 +42,18 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             var query = connection.Table<Notification>().Where(e => e.Id == id && e.Version > fromVersion);
             var results = await query.ToListAsync();
             // TODO: await this.CloseConnection(connection);
+
+            if (this.settingsService.ValidateEncryptionEnabled())
+                this.settingsService.GetKeyPropertyPair().ProtectedInvoke(
+                    () => {
+                        foreach (var r in results)
+                            foreach (var np in EventStore.GetNotificationProperties())
+                                np.Decrypt(r, this.settingsService.EventsKey);
+                    },
+                    this.dataProtector,
+                    this.settingsService
+                );
+
             return results;
         }
 
@@ -62,14 +81,51 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             var results = await query.ToListAsync();
             // TODO: await this.CloseConnection(connection);
 
+            if (this.settingsService.ValidateEncryptionEnabled())
+                this.settingsService.GetKeyPropertyPair().ProtectedInvoke(
+                    () => {
+                        foreach (var r in results)
+                            foreach (var np in EventStore.GetNotificationProperties())
+                                np.Decrypt(r, this.settingsService.EventsKey);
+                    },
+                    this.dataProtector,
+                    this.settingsService
+                );
+
             return await EventStore.CreateNotificationLog(logId, totalCount, results);
         }
 
         public async Task Save(IEnumerable<Notification> notifications, CancellationToken cancellationToken = default(CancellationToken))
         {
             var connection = await this.GetCreateConnection();
-            await connection.RunInTransactionAsync(c => c.InsertAll(notifications));
+            var notificationsList = notifications.ToList();
+
+            if (this.settingsService.ValidateEncryptionEnabled())
+                this.settingsService.GetKeyPropertyPair().ProtectedInvoke(
+                    () => {
+                        foreach (var n in notificationsList)
+                            foreach (var np in EventStore.GetNotificationProperties())
+                                np.Encrypt(n, this.settingsService.EventsKey);
+                    },
+                    this.dataProtector,
+                    this.settingsService
+                );
+
+            await connection.RunInTransactionAsync(c => c.InsertAll(notificationsList));
             // TODO: await this.CloseConnection(connection);
+        }
+
+        private static IEnumerable<PropertyExpression<Notification, string>> notificationProperties = null;
+        private static IEnumerable<PropertyExpression<Notification, string>> GetNotificationProperties()
+        {
+            if (EventStore.notificationProperties == null)
+                EventStore.notificationProperties = new PropertyExpression<Notification, string>[] {
+                    new PropertyExpression<Notification, string>(n => n.Timestamp),
+                    new PropertyExpression<Notification, string>(n => n.TypeName),
+                    new PropertyExpression<Notification, string>(n => n.AuthorId),
+                    new PropertyExpression<Notification, string>(n => n.Data)
+                };
+            return EventStore.notificationProperties;
         }
 
         private async Task<SQLiteAsyncConnection> GetCreateConnection()
@@ -92,7 +148,7 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
         //    GC.WaitForPendingFinalizers();
         //}
 
-        public static async Task<NotificationLog> CreateNotificationLog(NotificationLogId notificationLogId, long notificationCount, IEnumerable<Notification> notificationList)
+        internal static async Task<NotificationLog> CreateNotificationLog(NotificationLogId notificationLogId, long notificationCount, IEnumerable<Notification> notificationList)
         {
             AssertionConcern.AssertArgumentValid(
                 l => (l % EVENTS_PER_LOG) == 0,
@@ -110,7 +166,7 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             return await EventStore.CreateNotificationLog(new NotificationLogInfo(notificationLogId, notificationCount), notificationCount, notificationList);
         }
 
-        public static NotificationLogInfo CalculateCurrentNotificationLogId(long notificationCount)
+        internal static NotificationLogInfo CalculateCurrentNotificationLogId(long notificationCount)
         {
             long low, high;
             if (notificationCount > 0)
@@ -129,7 +185,7 @@ namespace ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite
             return new NotificationLogInfo(new NotificationLogId(low, high), notificationCount);
         }
 
-        public static async Task<NotificationLog> CreateNotificationLog(NotificationLogInfo notificationLogInfo, long notificationCount, IEnumerable<Notification> notificationList)
+        internal static async Task<NotificationLog> CreateNotificationLog(NotificationLogInfo notificationLogInfo, long notificationCount, IEnumerable<Notification> notificationList)
         {
             NotificationLogId first = null, next = null, previous = null;
             var isArchived = false;

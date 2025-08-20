@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>ei8.EventSourcing.Port.Adapter.Out.InProcess</id>
-    <version>0.0.7</version>
+    <version>0.1.0</version>
     <title>ei8.EventSourcing.Port.Adapter.Out.InProcess</title>
     <authors>Elmer Roderick Niem Bool</authors>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>

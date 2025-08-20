@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite</id>
+    <version>0.1.3</version>
+    <title>ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite</title>
+    <authors>Elmer Roderick Niem Bool</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <licenseUrl>https://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <description>ei8 EventSourcing Port Adapter IO Persistence Events SQLite</description>
+    <releaseNotes>Initial.</releaseNotes>
+    <tags>ei8 eventsourcing port adapter io persistence events sqlite</tags>
+  </metadata>
+</package>

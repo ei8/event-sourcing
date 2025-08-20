@@ -19,13 +19,14 @@
   </ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite" Version="0.1.2" />
+		<PackageReference Include="sqlite-net-pcl" Version="1.7.335" />
 		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.5.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-    <ProjectReference Include="..\..\..\Application\Application.csproj" />
-    <ProjectReference Include="..\..\IO\Persistence\Events\SQLite\SQLite.csproj" />
+    <ProjectReference Include="..\..\Common\Api\Common.Api.csproj" />
     <ProjectReference Include="..\..\IO\Process\Services\Services.csproj" />
   </ItemGroup>
 

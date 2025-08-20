@@ -1,9 +1,13 @@
 ﻿using ei8.EventSourcing.Application;
 using ei8.EventSourcing.Application.EventStores;
+using ei8.EventSourcing.Application.Keys;
 using ei8.EventSourcing.Common;
+using ei8.EventSourcing.Domain.Model;
+using ei8.EventSourcing.Port.Adapter.Common.Api;
 using ei8.EventSourcing.Port.Adapter.IO.Persistence.Events.SQLite;
 using ei8.EventSourcing.Port.Adapter.IO.Process.Services;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,11 +23,17 @@ using System.Text.Json;
 using dmIEventStore = ei8.EventSourcing.Domain.Model.IEventStore;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDataProtection();
+
+var sp = builder.Services.BuildServiceProvider();
+builder.Services.AddSingleton(sp.GetRequiredService<IDataProtectionProvider>().CreateProtector(typeof(EventStore).FullName));
 
 // Add services to the container.
-builder.Services.AddScoped<ISettingsService, SettingsService>();
+builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddScoped<dmIEventStore, EventStore>();
 builder.Services.AddScoped<IEventStoreApplicationService, EventStoreApplicationService>();
+builder.Services.AddSingleton<IKeyService, KeyService>();
+builder.Services.AddScoped<IKeyApplicationService, KeyApplicationService>();
 
 builder.Services.AddHttpClient();
 
@@ -70,6 +80,8 @@ app.MapPost("/eventsourcing/eventstore", async (
     }
     return result;
 });
+
+app.AddKeyHandler();
 
 // Add global exception handling
 app.UseExceptionHandler(appError =>

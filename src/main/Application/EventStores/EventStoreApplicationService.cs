@@ -9,12 +9,12 @@ namespace ei8.EventSourcing.Application.EventStores
 {
     public class EventStoreApplicationService : IEventStoreApplicationService
     {
+        private readonly dmIEventStore eventStore;
+
         public EventStoreApplicationService(dmIEventStore eventStore)
         {
             this.eventStore = eventStore;
         }
-
-        private readonly dmIEventStore eventStore;
 
         public async Task<IEnumerable<Notification>> Get(Guid aggregateId, int fromVersion, CancellationToken cancellationToken = default)
         {
